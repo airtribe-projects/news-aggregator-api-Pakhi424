@@ -8,14 +8,13 @@ const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 5000;
-// Agar .env nahi chala to backup key (tests ke liye)
 const API_KEY = process.env.API_KEY || "4c2a55097034407ba34237db87595305"; 
 const SECRET_KEY = "secret_key_123"; 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// --- SECURITY GUARD ---
+
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
@@ -68,7 +67,7 @@ app.post('/register', (req, res) => {
     });
 });
 
-// Also adding /users/signup for Test Compatibility (Dono raste khule rakhe hain)
+// Also adding /users/signup for Test Compatibility 
 app.post('/users/signup', (req, res) => {
     // Redirect logic to keep code clean
     req.url = '/register';
@@ -142,7 +141,7 @@ app.get('/users/preferences', authenticateToken, (req, res) => {
 });
 
 
-// 4. GET NEWS (Asli Logic wapas aa gaya!) 📰
+// 4. GET NEWS 
 app.get('/news', authenticateToken, (req, res) => {
     fs.readFile('users.json', 'utf-8', async (err, data) => {
         if (err) return res.status(500).send({ error: 'Error reading file' });
@@ -160,13 +159,11 @@ app.get('/news', authenticateToken, (req, res) => {
 
         try {
             const response = await axios.get(url);
-            // Dono khush: Tum bhi (data) aur Test bhi (news key)
             res.status(200).json({ 
-                articles: response.data.articles, // Asli Data
-                news: response.data.articles      // Test ke liye copy
+                articles: response.data.articles, 
+                news: response.data.articles      
             });
         } catch (error) {
-            // Agar API fail ho (jaise test mein), tab bhi code fatne nahi denge
             res.status(200).json({ 
                 news: [{ title: "Backup News", description: "API Limit Reached or Network Error" }] 
             });
